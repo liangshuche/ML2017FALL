@@ -18,7 +18,7 @@ output_path=argv[3]
 train_label_path='data/training_label.txt'
 train_nolabel_path='data/training_nolabel.txt'
 test_path='data/testing_data.txt'
-
+val_split=0.1
 
 def readlabeldata(path):
 	print('Reading Labeled Data...')
@@ -55,7 +55,7 @@ def readtestdata(path):
 	del data[0]
 	#print (data)
 	return data		
-
+'''
 train_labeled_text,train_labeled_label=readlabeldata(train_label_path)
 train_nolabel=readnolabeldata(train_nolabel_path)
 test_text=readtestdata(test_path)
@@ -91,7 +91,20 @@ x_test=np.array(x_test)
 np.save('x_train_labeled.npy',x_train_labeled)
 np.save('x_train_nolabel.npy',x_train_nolabel)
 np.save('y_train_labeled.npy',y_train_labeled)
-np.save('x_test',x_test)
+np.save('x_test.npy',x_test)
+'''
+x_train_labeled=np.load('data/x_train_labeled.npy')
+x_train_nolabel=np.load('data/x_train_nolabel.npy')
+y_train_labeled=np.load('data/y_train_labeled.npy')
+x_test=np.load('data/x_test.npy')
+
+if(0<val_split<1):
+	cut_index=round(val_split*x_train_labeled.shape[0])
+	x_val=x_train_labeled[cut_index:][:]
+	x_train_labeled=x_train_labeled[:cut_index][:]
+	y_val=y_train_labeled[cut_index:][:]
+	y_train_labeled=y_train_labeled[:cut_index][:]
+
 
 model = Sequential()
 model.add(Embedding(vocab_size,64))
@@ -132,7 +145,7 @@ early_stop=EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=0
 callbacks.append(early_stop)
 callbacks.append(checkpoint)
 
-model.fit(x_train_labeled,y_train_labeled,batch_size=128,epochs=int(epoch_num),validation_split=0.1,verbose=1,callbacks=callbacks)
+model.fit(x_train_labeled,y_train_labeled,batch_size=128,epochs=int(epoch_num),validation_data=(x_val,y_val),verbose=1,callbacks=callbacks)
 
 model=load_model(model_path)
 result=model.predict(x_test,batch_size=128,verbose=1)
