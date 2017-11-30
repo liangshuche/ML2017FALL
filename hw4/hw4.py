@@ -80,7 +80,7 @@ x_test=pad_sequences(x_test,maxlen=sequence_len, padding='post')
 
 x_train_labeled=np.array(x_train_labeled)
 x_train_nolabel=np.array(x_train_nolabel)
-print (x_train_nolabel)
+
 #print (train_labeled_label)
 y_train_labeled=np.array(train_labeled_label)
 #print (y_train_labeled)
@@ -88,6 +88,10 @@ y_train_labeled=np.array(train_labeled_label)
 #print (tokenizer.texts_to_sequences(line1))
 x_test=np.array(x_test)
 
+np.save('x_train_labeled.npy',x_train_labeled)
+np.save('x_train_nolabel.npy',x_train_nolabel)
+np.save('y_train_labeled.npy',y_train_labeled)
+np.save('x_test',x_test)
 
 model = Sequential()
 model.add(Embedding(vocab_size,64))
