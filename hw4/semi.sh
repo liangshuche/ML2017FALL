@@ -1,1 +1,0 @@
-python3 label.py model/model_2layer_2.h5 0.9 data/semi_0.9.npy
