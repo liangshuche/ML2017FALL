@@ -1,4 +1,5 @@
 import numpy as np
+import skimage
 import os
 from sys import argv
 from skimage import io
@@ -14,8 +15,8 @@ def mean(data):
     output = data.reshape(600, 600, 3)
     io.imsave('p1.jpg',output)
 
-def pca(data):
-    data -= np.mean(data, axis=0)
+def pca(img):
+    data = img- np.mean(img, axis=0)
     U, s, V = np.linalg.svd(data.T, full_matrices=False)
     
     U_re = U - np.min(U,axis=0)
@@ -24,24 +25,24 @@ def pca(data):
     
     return U,U_re[:,0:4]
 
-def reconstruct(data,eigen):
-    mean=np.mean(data)
-    img = data - mean
+def reconstruct(re_img,eigen,x):
+    #x_mean=np.mean(x,axis=0)
+    img = re_img - x
     
     w = np.dot(img,eigen)
     img_re = np.dot(eigen,w)
     
-    img_re += mean
+    img_re += x
     img_re -= np.min(img_re)
     img_re /= np.max(img_re)
     img_re = (img_re*255).astype(np.uint8)
     
     io.imsave('reconstruction.jpg',img_re.reshape(600,600,3))
-    return img_re
 
 
 re_img=io.imread(os.path.join(argv[1],argv[2])).flatten()
-data=read_img(argv[1])
-eigen,face=pca(data)
-reconstruct(re_img,eigen[:,0:4])
+raw=read_img(argv[1])
+eigen,face=pca(raw)
+x_mean=np.mean(raw,axis=0)
+reconstruct(re_img,eigen[:,0:4],x_mean)
 
